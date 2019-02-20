@@ -1,0 +1,192 @@
+**&CSV File from LLINV FILE.
+**%*********************************************************************
+**%       SOFTWARE (C) 2018 THE UNIVERSITY OF TEXAS AT AUSTIN.         *
+**%                       ALL RIGHTS RESERVED.                         *
+**%UNAUTHORIZED COPYING OR TRANSMISSION OF THIS SOFTWARE IS PROHIBITED.*
+**%*********************************************************************
+**%             R E M A R K S    S E C T I O N
+**%---------------------------------------------------------------------
+**%
+**%       OBJECT NAME: LLPBZINV
+**%            AUTHOR: Crystal Arnspiger
+**%      DATE WRITTEN: 11-01-2018
+**%        FILES READ: LL-INVENTORY-CONTAINERS
+**%     FILES UPDATED: None
+**%  PURPOSE/COMMENTS: Reads all of LL-INVENTORY-CONTAINERS and produces
+**%                    a comma delimited dataset
+**%
+**%          REVISION: (AUTHOR/DATE/COMMENT)
+**%
+**%------------------------------------------------------------------- *
+*          D A T A   D E F I N I T I O N   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+DEFINE DATA
+*
+LOCAL
+*
+1 CON VIEW OF LL-INVENTORY-CONTAINERS
+  2 RECORD-TYPE                        (A1)
+  2 CNT-CONTAINER-NBR                  (N9.0)
+  2 OWNING-ORG-CODE                    (A4)
+  2 ROW                                (N3.0)
+  2 LADDER                             (N3.0)
+  2 SHELF                              (N3.0)
+  2 CNT-SIZE-TYPE-CODE                 (A1)
+  2 WEIGHT                             (N6.2)
+  2 MEDIA-FORMAT-CODE                  (A1)
+  2 PROCESSING-STATUS-CODE             (A1)
+  2 DATE-ADDED-TO-STORAGE              (D6)
+  2 LAST-BILLING-DATE                  (D6)
+  2 DELETION-DATE                      (D6)
+  2 DELETE-SW                          (A1)
+  2 SHELF-HEIGHT                       (N3.0)
+  2 SHELF-TYPE                         (A1)
+  2 MIL-LOC                            (A5)
+*
+1 #HEADERS
+  2 #RECORD-TYPE                       (A1)   INIT <'T'>
+  2 #CNT-CONTAINER-NBR                 (A11)  INIT <'CONTAINNMBR'>
+  2 #OWNING-ORG-CODE                   (A4)   INIT <'OWNO'>
+  2 #ROW                               (A5)   INIT <'ROWNB'>
+  2 #LADDER                            (A5)   INIT <'LADDN'>
+  2 #SHELF                             (A5)   INIT <'SHELF'>
+  2 #CNT-SIZE-TYPE-CODE                (A1)   INIT <'Z'>
+  2 #WEIGHT                            (A9)   INIT <'CTWEIGHT'>
+  2 #MEDIA-FORMAT-CODE                 (A1)   INIT <'F'>
+  2 #PROCESSING-STATUS-CODE            (A1)   INIT <'P'>
+  2 #CNT-DATE-ADDED-TO-STORAGE         (A6)   INIT <'DADDED'>
+  2 #LAST-BILLING-DATE                 (A6)   INIT <'DBILLD'>
+  2 #DELETION-DATE                     (A6)   INIT <'DDELET'>
+  2 #CNT-DELETE-SW                     (A1)   INIT <'W'>
+  2 #SHELF-HEIGHT                      (A5)   INIT <'HEIGT'>
+  2 #SHELF-TYPE                        (A1)   INIT <'Y'>
+  2 #CNT-MIL-LOC                       (A5)   INIT <'CALOC'>
+*
+1 #ROWS
+  2 #RECORD-TYPE                       (A1)
+  2 #CNT-CONTAINER-NBR                 (A11)
+  2 #OWNING-ORG-CODE                   (A4)
+  2 #ROW                               (A5)
+  2 #LADDER                            (A5)
+  2 #SHELF                             (A5)
+  2 #CNT-SIZE-TYPE-CODE                (A1)
+  2 #WEIGHT                            (A9)
+  2 #MEDIA-FORMAT-CODE                 (A1)
+  2 #PROCESSING-STATUS-CODE            (A1)
+  2 #CNT-DATE-ADDED-TO-STORAGE         (A6)
+  2 #LAST-BILLING-DATE                 (A6)
+  2 #DELETION-DATE                     (A6)
+  2 #CNT-DELETE-SW                     (A1)
+  2 #SHELF-HEIGHT                      (A5)
+  2 #SHELF-TYPE                        (A1)
+  2 #CNT-MIL-LOC                       (A5)
+*
+1 #WRITE-HEADERS                       (A500)
+1 #WRITE-ROWS                          (A500)
+1 #RECS-READ                           (N10)
+1 #DELIMITER                           (A1)   INIT <','>
+1 #RECS-WRITTEN-TO-WORK-FILE           (N10)
+*
+*
+END-DEFINE
+************************************************************************
+*
+* -------------------------------------------------------------------- *
+*               F O R M A T   K E Y   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+FORMAT (0) PS=77  LS=80           /* DO NOT USE FOR REAL REPORTS!
+**                                /* only (0) may be used when testing
+**                                /* online through 3270
+FORMAT (1) PS=77  LS=80           /* analysis page
+*
+* ----------------------------------------------------------------------
+*                 O N - E R R O R   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+*
+INCLUDE  TXCPERRJ
+*
+* ******************************************************************** *
+*                M A I N   L O G I C   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+*
+COMPRESS #HEADERS INTO #WRITE-HEADERS WITH ALL DELIMITER #DELIMITER
+WRITE WORK FILE 1 #WRITE-HEADERS
+*
+RD-CON.
+READ ALL CON IN PHYSICAL SEQUENCE
+*
+  ADD 1 TO #RECS-READ
+*
+  PERFORM WRITE-DATASET                     /* no errors returned
+*         =============
+*
+END-READ                                    /* RD-CON.
+*
+*
+PERFORM EOJ-ROUTINE                         /* no errors returned
+*       ===========
+*
+* ******************************************************************** *
+*               W R I T E   T I T L E   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+WRITE(1) TITLE LEFT JUSTIFIED
+  *INIT-USER         15T '      The University of Texas at Austin'
+  70T *DATU
+  / *LIBRARY-ID      15T '       Information Technology Services'
+  70T *TIMX (EM=HH:II:SS)
+  / *PROGRAM '(1)'   15T '               Analysis Page'
+  65T 'PAGE:' *PAGE-NUMBER(1) //
+*
+* -------------------------------------------------------------------- *
+* ******************************************************************** *
+*      I N T E R N A L   S U B R O U T I N E   S E C T I O N
+* -------------------------------------------------------------------- *
+DEFINE SUBROUTINE       WRITE-DATASET
+* -------------------------------------------------------------------- *
+*
+MOVE CON.RECORD-TYPE               TO #ROWS.#RECORD-TYPE
+MOVE CON.CNT-CONTAINER-NBR         TO #ROWS.#CNT-CONTAINER-NBR
+MOVE CON.OWNING-ORG-CODE           TO #ROWS.#OWNING-ORG-CODE
+MOVE CON.ROW                       TO #ROWS.#ROW
+MOVE CON.LADDER                    TO #ROWS.#LADDER
+MOVE CON.SHELF                     TO #ROWS.#SHELF
+MOVE CON.CNT-SIZE-TYPE-CODE        TO #ROWS.#CNT-SIZE-TYPE-CODE
+MOVE CON.WEIGHT                    TO #ROWS.#WEIGHT
+MOVE CON.MEDIA-FORMAT-CODE         TO #ROWS.#MEDIA-FORMAT-CODE
+MOVE CON.PROCESSING-STATUS-CODE    TO #ROWS.#PROCESSING-STATUS-CODE
+MOVE CON.DATE-ADDED-TO-STORAGE     TO #ROWS.#CNT-DATE-ADDED-TO-STORAGE
+MOVE CON.LAST-BILLING-DATE         TO #ROWS.#LAST-BILLING-DATE
+MOVE CON.DELETION-DATE             TO #ROWS.#DELETION-DATE
+MOVE CON.DELETE-SW                 TO #ROWS.#CNT-DELETE-SW
+MOVE CON.SHELF-HEIGHT              TO #ROWS.#SHELF-HEIGHT
+MOVE CON.SHELF-TYPE                TO #ROWS.#SHELF-TYPE
+MOVE CON.MIL-LOC                   TO #ROWS.#CNT-MIL-LOC
+*
+COMPRESS #ROWS INTO #WRITE-ROWS WITH ALL DELIMITER #DELIMITER
+WRITE WORK FILE 1 #WRITE-ROWS
+*
+*
+ADD 1 TO #RECS-WRITTEN-TO-WORK-FILE
+*
+END-SUBROUTINE          /* WRITE-DATASET
+* -------------------------------------------------------------------- *
+DEFINE SUBROUTINE       EOJ-ROUTINE
+* -------------------------------------------------------------------- *
+*
+PRINT(1)
+  //   'Records read from FILE           :' #RECS-READ
+  /    'Records written to work file 1   :' #RECS-WRITTEN-TO-WORK-FILE
+*
+IF #RECS-READ NE #RECS-WRITTEN-TO-WORK-FILE
+  WRITE 'WARNING! #RECS-READ DOES NOT EQUAL #RECS-WRITTEN-TO-WORK-FILE.'
+END-IF
+*
+END-SUBROUTINE          /* EOJ-ROUTINE
+* -------------------------------------------------------------------- *
+*
+END

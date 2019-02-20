@@ -1,0 +1,336 @@
+**&CSV File from LLINV FILE.
+**%*********************************************************************
+**%       SOFTWARE (C) 2018 THE UNIVERSITY OF TEXAS AT AUSTIN.         *
+**%                       ALL RIGHTS RESERVED.                         *
+**%UNAUTHORIZED COPYING OR TRANSMISSION OF THIS SOFTWARE IS PROHIBITED.*
+**%*********************************************************************
+**%             R E M A R K S    S E C T I O N
+**%---------------------------------------------------------------------
+**%
+**%       OBJECT NAME: LLPBDINV
+**%            AUTHOR: Crystal Arnspiger
+**%      DATE WRITTEN: 05-02-2018
+**%        FILES READ: LL-INVENTORY-ITEMS
+**%     FILES UPDATED: None
+**%  PURPOSE/COMMENTS: Reads all of LL-INVENTORY-ITEMS and produces a
+**%                    comma delimited dataset
+**%
+**%          REVISION: (AUTHOR/DATE/COMMENT)
+**%
+**%------------------------------------------------------------------- *
+*          D A T A   D E F I N I T I O N   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+DEFINE DATA
+*
+LOCAL
+*
+1 INV VIEW OF LL-INVENTORY-ITEMS
+  2 INVENTORY-NBR                      (N10.0)
+  2 OWNING-UNIT-ITEM-NBR               (A15)
+  2 INV-CONTAINER-NBR                  (N9.0)
+  2 BOX-OR-TRAY                        (A1)
+  2 DESCRIPTION                        (A80)
+  2 DESCRIPTION-KEYWORD                (A20/1:5)
+  2 BOX-VOL-SER-NBR                    (A15)
+  2 OWNING-UNIT-CODE                   (A4)
+  2 NON-GL-SW                          (A1)
+  2 RESTRICTED-USE-SW                  (A1)
+  2 DATE-ADDED-TO-STORAGE              (D6)
+  2 LAST-ACTIVITY-DATE                 (D6)
+  2 DISCARD-DATE                       (D6)
+  2 LAST-ACTIVITY-CODE                 (A1)
+  2 REQUESTING-UNIT-CODE               (A4)
+  2 REQUESTOR-NAME                     (A45)
+  2 REQUESTOR-ID                       (A8)
+  2 RESHELVING-SW                      (A1)
+  2 TOTAL-RETRIEVALS                   (N5.0)
+  2 TOTAL-EMER-RETRIEVALS              (N5.0)
+  2 DELETE-SW                          (A1)
+  2 EMERGENCY-RETRIEVAL-SW             (A1)
+  2 MIL-LOC                            (A5)
+  2 CALL-NUMBER                        (A120)
+  2 PICKUP-LOC                         (A5)
+  2 DIGITIZE                           (A1)
+  2 RESOURCE-IN-COMMON                 (A1)
+*
+1 CON VIEW OF LL-INVENTORY-CONTAINERS
+  2 RECORD-TYPE                        (A1)
+  2 CNT-CONTAINER-NBR                  (N9.0)
+  2 OWNING-ORG-CODE                    (A4)
+  2 ROW                                (N3.0)
+  2 LADDER                             (N3.0)
+  2 SHELF                              (N3.0)
+  2 CNT-SIZE-TYPE-CODE                 (A1)
+  2 WEIGHT                             (N6.2)
+  2 MEDIA-FORMAT-CODE                  (A1)
+  2 PROCESSING-STATUS-CODE             (A1)
+  2 DATE-ADDED-TO-STORAGE              (D6)
+  2 LAST-BILLING-DATE                  (D6)
+  2 DELETION-DATE                      (D6)
+  2 DELETE-SW                          (A1)
+  2 SHELF-HEIGHT                       (N3.0)
+  2 SHELF-TYPE                         (A1)
+  2 MIL-LOC                            (A5)
+*
+1 #HEADERS
+  2 #INVENTORY-NBR                     (A12)  INIT <'INV NBR'>
+  2 #OWNING-UNIT-ITEM-NBR              (A15)  INIT <'OWNING ID'>
+  2 #INV-CONTAINER-NBR                 (A11)  INIT <'CONTAINER'>
+  2 #BOX-OR-TRAY                       (A1)   INIT <'B'>
+  2 #DESCRIPTION                       (A80)  INIT <'DESCRIPTION'>
+  2 #DESCRIPTION-KEYWORD-1             (A20)  INIT <'KEYWORD1'>
+  2 #DESCRIPTION-KEYWORD-2             (A20)  INIT <'KEYWORD2'>
+  2 #DESCRIPTION-KEYWORD-3             (A20)  INIT <'KEYWORD3'>
+  2 #DESCRIPTION-KEYWORD-4             (A20)  INIT <'KEYWORD4'>
+  2 #DESCRIPTION-KEYWORD-5             (A20)  INIT <'KEYWORD5'>
+  2 #BOX-VOL-SER-NBR                   (A15)  INIT <'BVS-NBR'>
+  2 #OWNING-UNIT-CODE                  (A4)   INIT <'OWNU'>
+  2 #NON-GL-SW                         (A1)   INIT <'G'>
+  2 #RESTRICTED-USE-SW                 (A1)   INIT <'R'>
+  2 #DATE-ADDED-TO-STORAGE             (A6)   INIT <'ADDED'>
+  2 #LAST-ACTIVITY-DATE                (A6)   INIT <'LACTIV'>
+  2 #DISCARD-DATE                      (A6)   INIT <'DSCRD'>
+  2 #LAST-ACTIVITY-CODE                (A1)   INIT <'C'>
+  2 #REQUESTING-UNIT-CODE              (A4)   INIT <'REQU'>
+  2 #REQUESTOR-NAME                    (A45)  INIT <'REQUESTOR NAME'>
+  2 #REQUESTOR-ID                      (A8)   INIT <'REQ ID'>
+  2 #RESHELVING-SW                     (A1)   INIT <'S'>
+  2 #TOTAL-RETRIEVALS                  (A7)   INIT <'TOTRET'>
+  2 #TOTAL-EMER-RETRIEVALS             (A7)   INIT <'TOTER'>
+  2 #DELETE-SW                         (A1)   INIT <'D'>
+  2 #EMERGENCY-RETRIEVAL-SW            (A1)   INIT <'E'>
+  2 #MIL-LOC                           (A5)   INIT <'SILOC'>
+  2 #CALL-NUMBER                       (A120) INIT <'CALL NUMBER'>
+  2 #PICKUP-LOC                        (A5)   INIT <'PCKUP'>
+  2 #DIGITIZE                          (A1)   INIT <'I'>
+  2 #RESOURCE-IN-COMMON                (A1)   INIT <'M'>
+  2 #RECORD-TYPE                       (A1)   INIT <'T'>
+  2 #CNT-CONTAINER-NBR                 (A11)  INIT <'CONTAINNMBR'>
+  2 #OWNING-ORG-CODE                   (A4)   INIT <'OWNO'>
+  2 #ROW                               (A5)   INIT <'ROWNB'>
+  2 #LADDER                            (A5)   INIT <'LADDN'>
+  2 #SHELF                             (A5)   INIT <'SHELF'>
+  2 #CNT-SIZE-TYPE-CODE                (A1)   INIT <'Z'>
+  2 #WEIGHT                            (A9)   INIT <'CTWEIGHT'>
+  2 #MEDIA-FORMAT-CODE                 (A1)   INIT <'F'>
+  2 #PROCESSING-STATUS-CODE            (A1)   INIT <'P'>
+  2 #CNT-DATE-ADDED-TO-STORAGE         (A6)   INIT <'DADDED'>
+  2 #LAST-BILLING-DATE                 (A6)   INIT <'DBILLD'>
+  2 #DELETION-DATE                     (A6)   INIT <'DDELET'>
+  2 #CNT-DELETE-SW                     (A1)   INIT <'W'>
+  2 #SHELF-HEIGHT                      (A5)   INIT <'HEIGT'>
+  2 #SHELF-TYPE                        (A1)   INIT <'Y'>
+  2 #CNT-MIL-LOC                       (A5)   INIT <'CALOC'>
+*
+1 #ROWS
+  2 #INVENTORY-NBR                     (N10.0)
+  2 #OWNING-UNIT-ITEM-NBR              (A15)
+  2 #INV-CONTAINER-NBR                 (N9.0)
+  2 #BOX-OR-TRAY                       (A1)
+  2 #DESCRIPTION                       (A80)
+  2 #DESCRIPTION-KEYWORD-1             (A20)
+  2 #DESCRIPTION-KEYWORD-2             (A20)
+  2 #DESCRIPTION-KEYWORD-3             (A20)
+  2 #DESCRIPTION-KEYWORD-4             (A20)
+  2 #DESCRIPTION-KEYWORD-5             (A20)
+  2 #BOX-VOL-SER-NBR                   (A15)
+  2 #OWNING-UNIT-CODE                  (A4)
+  2 #NON-GL-SW                         (A1)
+  2 #RESTRICTED-USE-SW                 (A1)
+  2 #DATE-ADDED-TO-STORAGE             (D6)
+  2 #LAST-ACTIVITY-DATE                (D6)
+  2 #DISCARD-DATE                      (D6)
+  2 #LAST-ACTIVITY-CODE                (A1)
+  2 #REQUESTING-UNIT-CODE              (A4)
+  2 #REQUESTOR-NAME                    (A45)
+  2 #REQUESTOR-ID                      (A8)
+  2 #RESHELVING-SW                     (A1)
+  2 #TOTAL-RETRIEVALS                  (N5.0)
+  2 #TOTAL-EMER-RETRIEVALS             (N5.0)
+  2 #DELETE-SW                         (A1)
+  2 #EMERGENCY-RETRIEVAL-SW            (A1)
+  2 #MIL-LOC                           (A5)
+  2 #CALL-NUMBER                       (A120)
+  2 #PICKUP-LOC                        (A5)
+  2 #DIGITIZE                          (A1)
+  2 #RESOURCE-IN-COMMON                (A1)
+  2 #RECORD-TYPE                       (A1)
+  2 #CNT-CONTAINER-NBR                 (A11)
+  2 #OWNING-ORG-CODE                   (A4)
+  2 #ROW                               (A5)
+  2 #LADDER                            (A5)
+  2 #SHELF                             (A5)
+  2 #CNT-SIZE-TYPE-CODE                (A1)
+  2 #WEIGHT                            (A9)
+  2 #MEDIA-FORMAT-CODE                 (A1)
+  2 #PROCESSING-STATUS-CODE            (A1)
+  2 #CNT-DATE-ADDED-TO-STORAGE         (A6)
+  2 #LAST-BILLING-DATE                 (A6)
+  2 #DELETION-DATE                     (A6)
+  2 #CNT-DELETE-SW                     (A1)
+  2 #SHELF-HEIGHT                      (A5)
+  2 #SHELF-TYPE                        (A1)
+  2 #CNT-MIL-LOC                       (A5)
+*
+1 #WRITE-HEADERS                       (A1000)
+1 #WRITE-ROWS                          (A1000)
+1 #RECS-READ                           (N10)
+1 #DELIMITER                           (A1)   INIT <','>
+1 #RECS-WRITTEN-TO-WORK-FILE           (N10)
+*
+1 #CONTAINER-KEY                       (A10)
+1 REDEFINE #CONTAINER-KEY
+  2 #KEY-TYPE                          (A1)   INIT <'1'>
+  2 #KEY-NUMBER                        (A9)
+*
+END-DEFINE
+************************************************************************
+*
+* -------------------------------------------------------------------- *
+*               F O R M A T   K E Y   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+FORMAT (0) PS=77  LS=80           /* DO NOT USE FOR REAL REPORTS!
+**                                /* only (0) may be used when testing
+**                                /* online through 3270
+FORMAT (1) PS=77  LS=80           /* analysis page
+*
+* ----------------------------------------------------------------------
+*                 O N - E R R O R   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+*
+INCLUDE  TXCPERRJ
+*
+* ******************************************************************** *
+*                M A I N   L O G I C   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+*
+COMPRESS #HEADERS INTO #WRITE-HEADERS WITH ALL DELIMITER #DELIMITER
+WRITE WORK FILE 1 #WRITE-HEADERS
+*
+RD-INV.
+READ ALL INV IN PHYSICAL SEQUENCE
+*
+  ADD 1 TO #RECS-READ
+*
+  PERFORM WRITE-DATASET                     /* no errors returned
+*         =============
+*
+END-READ                                    /* RD-INV.
+*
+*
+PERFORM EOJ-ROUTINE                         /* no errors returned
+*       ===========
+*
+* ******************************************************************** *
+*               W R I T E   T I T L E   S E C T I O N
+* -------------------------------------------------------------------- *
+*
+WRITE(1) TITLE LEFT JUSTIFIED
+  *INIT-USER         15T '      The University of Texas at Austin'
+  70T *DATU
+  / *LIBRARY-ID      15T '       Information Technology Services'
+  70T *TIMX (EM=HH:II:SS)
+  / *PROGRAM '(1)'   15T '               Analysis Page'
+  65T 'PAGE:' *PAGE-NUMBER(1) //
+*
+* -------------------------------------------------------------------- *
+* ******************************************************************** *
+*      I N T E R N A L   S U B R O U T I N E   S E C T I O N
+* -------------------------------------------------------------------- *
+DEFINE SUBROUTINE       WRITE-DATASET
+* -------------------------------------------------------------------- *
+*
+MOVE INV.INVENTORY-NBR               TO #ROWS.#INVENTORY-NBR
+MOVE INV.OWNING-UNIT-ITEM-NBR        TO #ROWS.#OWNING-UNIT-ITEM-NBR
+MOVE INV.INV-CONTAINER-NBR           TO #ROWS.#INV-CONTAINER-NBR
+MOVE INV.BOX-OR-TRAY                 TO #ROWS.#BOX-OR-TRAY
+MOVE INV.DESCRIPTION                 TO #ROWS.#DESCRIPTION
+MOVE INV.DESCRIPTION-KEYWORD(1)      TO #ROWS.#DESCRIPTION-KEYWORD-1
+MOVE INV.DESCRIPTION-KEYWORD(2)      TO #ROWS.#DESCRIPTION-KEYWORD-2
+MOVE INV.DESCRIPTION-KEYWORD(3)      TO #ROWS.#DESCRIPTION-KEYWORD-3
+MOVE INV.DESCRIPTION-KEYWORD(4)      TO #ROWS.#DESCRIPTION-KEYWORD-4
+MOVE INV.DESCRIPTION-KEYWORD(5)      TO #ROWS.#DESCRIPTION-KEYWORD-5
+MOVE INV.BOX-VOL-SER-NBR             TO #ROWS.#BOX-VOL-SER-NBR
+MOVE INV.OWNING-UNIT-CODE            TO #ROWS.#OWNING-UNIT-CODE
+MOVE INV.NON-GL-SW                   TO #ROWS.#NON-GL-SW
+MOVE INV.RESTRICTED-USE-SW           TO #ROWS.#RESTRICTED-USE-SW
+MOVE INV.DATE-ADDED-TO-STORAGE       TO #ROWS.#DATE-ADDED-TO-STORAGE
+MOVE INV.LAST-ACTIVITY-DATE          TO #ROWS.#LAST-ACTIVITY-DATE
+MOVE INV.DISCARD-DATE                TO #ROWS.#DISCARD-DATE
+MOVE INV.LAST-ACTIVITY-CODE          TO #ROWS.#LAST-ACTIVITY-CODE
+MOVE INV.REQUESTING-UNIT-CODE        TO #ROWS.#REQUESTING-UNIT-CODE
+MOVE INV.REQUESTOR-NAME              TO #ROWS.#REQUESTOR-NAME
+MOVE INV.REQUESTOR-ID                TO #ROWS.#REQUESTOR-ID
+MOVE INV.RESHELVING-SW               TO #ROWS.#RESHELVING-SW
+MOVE INV.TOTAL-RETRIEVALS            TO #ROWS.#TOTAL-RETRIEVALS
+MOVE INV.TOTAL-EMER-RETRIEVALS       TO #ROWS.#TOTAL-EMER-RETRIEVALS
+MOVE INV.DELETE-SW                   TO #ROWS.#DELETE-SW
+MOVE INV.EMERGENCY-RETRIEVAL-SW      TO #ROWS.#EMERGENCY-RETRIEVAL-SW
+MOVE INV.MIL-LOC                     TO #ROWS.#MIL-LOC
+MOVE INV.CALL-NUMBER                 TO #ROWS.#CALL-NUMBER
+MOVE INV.PICKUP-LOC                  TO #ROWS.#PICKUP-LOC
+MOVE INV.DIGITIZE                    TO #ROWS.#DIGITIZE
+MOVE INV.RESOURCE-IN-COMMON          TO #ROWS.#RESOURCE-IN-COMMON
+*
+  PERFORM RETRIEVE-CONTAINER
+*         ==================
+*
+COMPRESS #ROWS INTO #WRITE-ROWS WITH ALL DELIMITER #DELIMITER
+WRITE WORK FILE 1 #WRITE-ROWS
+*
+*
+ADD 1 TO #RECS-WRITTEN-TO-WORK-FILE
+*
+END-SUBROUTINE          /* WRITE-DATASET
+* -------------------------------------------------------------------- *
+DEFINE SUBROUTINE       RETRIEVE-CONTAINER
+* -------------------------------------------------------------------- *
+*
+RESET #CONTAINER-KEY
+*
+MOVE '1'                             TO #KEY-TYPE
+MOVE INV.INV-CONTAINER-NBR           TO #KEY-NUMBER
+*
+FD-CONT.
+FIND IN CON WITH TYPE-CONTAINER-NR = #CONTAINER-KEY
+*
+  MOVE CON.RECORD-TYPE               TO #ROWS.#RECORD-TYPE
+  MOVE CON.CNT-CONTAINER-NBR         TO #ROWS.#CNT-CONTAINER-NBR
+  MOVE CON.OWNING-ORG-CODE           TO #ROWS.#OWNING-ORG-CODE
+  MOVE CON.ROW                       TO #ROWS.#ROW
+  MOVE CON.LADDER                    TO #ROWS.#LADDER
+  MOVE CON.SHELF                     TO #ROWS.#SHELF
+  MOVE CON.CNT-SIZE-TYPE-CODE        TO #ROWS.#CNT-SIZE-TYPE-CODE
+  MOVE CON.WEIGHT                    TO #ROWS.#WEIGHT
+  MOVE CON.MEDIA-FORMAT-CODE         TO #ROWS.#MEDIA-FORMAT-CODE
+  MOVE CON.PROCESSING-STATUS-CODE    TO #ROWS.#PROCESSING-STATUS-CODE
+  MOVE CON.DATE-ADDED-TO-STORAGE     TO #ROWS.#CNT-DATE-ADDED-TO-STORAGE
+  MOVE CON.LAST-BILLING-DATE         TO #ROWS.#LAST-BILLING-DATE
+  MOVE CON.DELETION-DATE             TO #ROWS.#DELETION-DATE
+  MOVE CON.DELETE-SW                 TO #ROWS.#CNT-DELETE-SW
+  MOVE CON.SHELF-HEIGHT              TO #ROWS.#SHELF-HEIGHT
+  MOVE CON.SHELF-TYPE                TO #ROWS.#SHELF-TYPE
+  MOVE CON.MIL-LOC                   TO #ROWS.#CNT-MIL-LOC
+*
+END-FIND  /* FIND-CONT.
+*
+END-SUBROUTINE          /* RETRIEVE-CONTAINER
+* -------------------------------------------------------------------- *
+DEFINE SUBROUTINE       EOJ-ROUTINE
+* -------------------------------------------------------------------- *
+*
+PRINT(1)
+  //   'Records read from FILE           :' #RECS-READ
+  /    'Records written to work file 1   :' #RECS-WRITTEN-TO-WORK-FILE
+*
+IF #RECS-READ NE #RECS-WRITTEN-TO-WORK-FILE
+  WRITE 'WARNING! #RECS-READ DOES NOT EQUAL #RECS-WRITTEN-TO-WORK-FILE.'
+*
+END-SUBROUTINE          /* EOJ-ROUTINE
+* -------------------------------------------------------------------- *
+*
+END
